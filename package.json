@@ -22,7 +22,7 @@
   "dependencies": {
     "@a2seven/yoo-checkout": "^1.1.4",
     "@nestjs/common": "^9.0.0",
-    "@nestjs/config": "^2.3.0",  
+    "@nestjs/config": "^2.3.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/jwt": "^9.0.0",
     "@nestjs/passport": "^9.0.0",
@@ -35,6 +35,7 @@
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
     "dayjs": "^1.11.13",
+    "docker": "^1.0.0",
     "fs-extra": "^11.2.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
