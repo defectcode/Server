@@ -22,21 +22,23 @@
   "dependencies": {
     "@a2seven/yoo-checkout": "^1.1.4",
     "@nestjs/common": "^9.0.0",
-    "@nestjs/config": "^2.3.0",
+    "@nestjs/config": "^3.2.3",
     "@nestjs/core": "^9.0.0",
-    "@nestjs/jwt": "^9.0.0",
-    "@nestjs/passport": "^9.0.0",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^9.0.0",
-    "@nestjs/serve-static": "^3.0.0",
+    "@nestjs/serve-static": "^4.0.2",
+    "@paypal/checkout-server-sdk": "^1.0.3",
     "@prisma/client": "^5.20.0",
     "app-root-path": "^3.1.0",
     "argon2": "^0.41.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
-    "cookie-parser": "^1.4.6",
+    "cookie-parser": "^1.4.7",
     "dayjs": "^1.11.13",
     "docker": "^1.0.0",
     "fs-extra": "^11.2.0",
+    "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-yandex": "^0.0.5",
@@ -90,5 +92,6 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   },
-  "main": ".eslintrc.js"
+  "main": ".eslintrc.js",
+  "repository": "https://github.com/defectcode/Server.git"
 }
