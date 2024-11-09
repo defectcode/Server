@@ -12,7 +12,9 @@ export class FileController {
   @UseInterceptors(FilesInterceptor('files'))
   @Auth()
   @Post()
-  async saveFiles(@UploadedFiles() files: Express.Multer.File[],@Query() folder?: string) {
+  // async saveFiles(@UploadedFiles() files: Express.Multer.File[],@Query() folder?: string) {
+  async saveFiles(files: Express.Multer.File[], folder: string = 'products') {
+
     return this.fileService.seveFiles(files, folder)
   }
 
