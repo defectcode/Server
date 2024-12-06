@@ -7,18 +7,18 @@ import { PrismaService } from 'src/prisma.service'
 dayjs.locale('ru')
 
 const monthNames = [
-	'Jan',
-	'Feb',
-	'Mar',
-	'Apr',
-	'May',
-	'Jun',
-	'Jul',
-	'Aug',
-	'Sep',
-	'Oct',
-	'Nov',
-	'Dec'
+	'янв',
+	'фев',
+	'мар',
+	'апр',
+	'мая',
+	'июн',
+	'июл',
+	'авг',
+	'сен',
+	'окт',
+	'ноя',
+	'дек'
 ]
 
 @Injectable()
@@ -34,10 +34,10 @@ export class StatisticsService {
 		const averageRating = await this.calculateAverageRating(storeId)
 
 		return [
-			{ id: 1, name: 'Revenue', value: totalRevenue },
-			{ id: 2, name: 'Goods', value: productsCount },
-			{ id: 3, name: 'Categories', value: categoriesCount },
-			{ id: 4, name: 'Average rating', value: averageRating || 0 }
+			{ id: 1, name: 'Выручка', value: totalRevenue },
+			{ id: 2, name: 'Товары', value: productsCount },
+			{ id: 3, name: 'Категории', value: categoriesCount },
+			{ id: 4, name: 'Средний рейтинг', value: averageRating || 0 }
 		]
 	}
 

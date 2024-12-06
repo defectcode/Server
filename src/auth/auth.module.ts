@@ -10,7 +10,6 @@ import { AuthService } from './auth.service'
 import { GoogleStrategy } from './strategies/google.strategy'
 import { JwtStrategy } from './strategies/jwt.strategy'
 
-
 @Module({
 	imports: [
 		UserModule,

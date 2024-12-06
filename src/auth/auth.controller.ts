@@ -99,6 +99,23 @@ export class AuthController {
 		)
 	}
 
+	@Get('yandex')
+	@UseGuards(AuthGuard('yandex'))
+	async yandexAuth(@Req() req) {}
 
+	@Get('yandex/callback')
+	@UseGuards(AuthGuard('yandex'))
+	async yandexAuthCallback(
+		@Req() req,
+		@Res({ passthrough: true }) res: Response
+	) {
+		const { refreshToken, ...response } =
+			await this.authService.validateOAuthLogin(req)
 
+		this.authService.addRefreshTokenToResponse(res, refreshToken)
+
+		return res.redirect(
+			`${process.env['CLIENT_URL']}/dashboard?accessToken=${response.accessToken}`
+		)
+	}
 }

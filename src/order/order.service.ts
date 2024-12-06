@@ -1,128 +1,99 @@
-import Stripe from 'stripe';
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
-import { OrderDto } from './dto/order.dto';
-import { PaymentStatusDto } from './dto/payment-status.dto';
-import { EnumOrderStatus } from '@prisma/client';
-import * as paypal from '@paypal/checkout-server-sdk';
-import { PayPalService } from './paypal.service'; // Asumăm că ai deja acest serviciu definit
+import { ICapturePayment, YooCheckout } from '@a2seven/yoo-checkout'
+import { Injectable } from '@nestjs/common'
+import { EnumOrderStatus } from '@prisma/client'
+import { PrismaService } from 'src/prisma.service'
+import { OrderDto } from './dto/order.dto'
+import { PaymentStatusDto } from './dto/payment-status.dto'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-06-20',
-});  
+const checkout = new YooCheckout({
+	shopId: process.env['YOOKASSA_SHOP_ID'],
+	secretKey: process.env['YOOKASSA_SECRET_KEY']
+})
 
 @Injectable()
 export class OrderService {
-  constructor(
-    private prisma: PrismaService,
-    private payPalService: PayPalService // Adăugăm PayPalService
-  ) {}
+	constructor(private prisma: PrismaService) {}
 
-  async createPayment(dto: OrderDto, userId: string) {
-    const orderItems = dto.items.map(item => ({
-      quantity: item.quantity,
-      price: item.price,
-      product: {
-        connect: {
-          id: item.productId,
-        },
-      },
-      store: {
-        connect: {
-          id: item.storeId,
-        },
-      },
-    }));
+	async createPayment(dto: OrderDto, userId: string) {
+		const orderItems = dto.items.map(item => ({
+			quantity: item.quantity,
+			price: item.price,
+			product: {
+				connect: {
+					id: item.productId
+				}
+			},
+			store: {
+				connect: {
+					id: item.storeId
+				}
+			}
+		}))
 
-    const total = dto.items.reduce((acc, item) => {
-      return acc + item.price * item.quantity;
-    }, 0);
+		const total = dto.items.reduce((acc, item) => {
+			return acc + item.price * item.quantity
+		}, 0)
 
-    const order = await this.prisma.order.create({
-      data: {
-        status: dto.status,
-        items: {
-          create: orderItems,
-        },
-        total,
-        user: {
-          connect: {
-            id: userId,
-          },
-        },
-      },
-    });
+		const order = await this.prisma.order.create({
+			data: {
+				status: dto.status,
+				items: {
+					create: orderItems
+				},
+				total,
+				user: {
+					connect: {
+						id: userId
+					}
+				}
+			}
+		})
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(total * 100), 
-      currency: 'usd',
-      payment_method_types: ['card'],
-      description: `Payment for an order in the Fynely store. Payment ID: #${order.id}`,
-      metadata: { orderId: order.id },
-    });
+		const payment = await checkout.createPayment({
+			amount: {
+				value: total.toFixed(2),
+				currency: 'RUB'
+			},
+			payment_method_data: {
+				type: 'bank_card'
+			},
+			confirmation: {
+				type: 'redirect',
+				return_url: `${process.env.CLIENT_URL}/thanks`
+			},
+			description: `Оплата заказа в магазине TeaShop. Id платежи: #${order.id}`
+		})
 
-    return {
-      clientSecret: paymentIntent.client_secret,
-    };
-  }
+		return payment
+	}
 
-  // Adăugăm logica pentru PayPal
-  async createPayPalOrder(total: number, userId: string) {
-    const order = await this.prisma.order.create({
-      data: {
-        total,
-        status: EnumOrderStatus.PENDING,
-        user: {
-          connect: {
-            id: userId,
-          },
-        },
-      },
-    });
+	async updateStatus(dto: PaymentStatusDto) {
+		if (dto.event === 'payment.waiting_for_capture') {
+			const capturePayment: ICapturePayment = {
+				amount: {
+					value: dto.object.amount.value,
+					currency: dto.object.amount.currency
+				}
+			}
 
-    // Creăm o comandă PayPal
-    const payPalOrder = await this.payPalService.createOrder(total);
+			return checkout.capturePayment(dto.object.id, capturePayment)
+		}
 
-    return {
-      id: order.id,
-      orderId: payPalOrder.id, // ID-ul comenzii PayPal
-      approveLink: payPalOrder.links.find(link => link.rel === 'approve').href, // Link-ul pentru aprobare PayPal
-    };
-  }
+		if (dto.event === 'payment.succeeded') {
+			const orderId = dto.object.description.split('#')[1]
 
-  async capturePayPalOrder(orderId: string) {
-    // Capturăm plata PayPal
-    const captureResponse = await this.payPalService.captureOrder(orderId);
-    
-    // Actualizăm statusul comenzii în baza de date
-    await this.prisma.order.update({
-      where: {
-        id: orderId,
-      },
-      data: {
-        status: EnumOrderStatus.PAYED,
-      },
-    });
+			await this.prisma.order.update({
+				where: {
+					id: orderId
+				},
+				data: {
+					status: EnumOrderStatus.PAYED
+				}
+			})
 
-    return captureResponse;
-  }
+			return true
+		}
 
-  async updateStatus(dto: PaymentStatusDto) {
-    if (dto.event === 'payment.succeeded') {
-      const orderId = dto.object.description.split('#')[1];
-
-      await this.prisma.order.update({
-        where: {
-          id: orderId,
-        },
-        data: {
-          status: EnumOrderStatus.PAYED,
-        },
-      });
-
-      return true;
-    }
-
-    return true;
-  }
+		return true
+	}
 }

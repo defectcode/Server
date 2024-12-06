@@ -12,30 +12,28 @@ import {
 export class OrderDto {
 	@IsOptional()
 	@IsEnum(EnumOrderStatus, {
-		message: 'Order status is required'
+		message: 'Статус заказа обязателен'
 	})
 	status: EnumOrderStatus
 
 	@IsArray({
-		message: 'There are no items in the order'
+		message: 'В заказе нет ни одного товара'
 	})
 	@ValidateNested({ each: true })
 	@Type(() => OrderItemDto)
 	items: OrderItemDto[]
-	customerEmail: any
-	storeName: any
 }
 
 export class OrderItemDto {
-	@IsNumber({}, { message: 'Quantity must be a number' })
+	@IsNumber({}, { message: 'Количество должно быть числом' })
 	quantity: number
 
-	@IsNumber({}, { message: 'The price must be a number' })
+	@IsNumber({}, { message: 'Цена должна быть числом' })
 	price: number
 
-	@IsString({ message: 'Product ID must be a string' })
+	@IsString({ message: 'ID продукта должен быть строкой' })
 	productId: string
 
-	@IsString({ message: 'Store ID must be a string' })
+	@IsString({ message: 'ID магазина должен быть строкой' })
 	storeId: string
 }
