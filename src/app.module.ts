@@ -11,7 +11,8 @@ import { StoreModule } from './store/store.module'
 import { UserModule } from './user/user.module'
 import { ProductModule } from './product/product.module';
 import { ReviewModule } from './review/review.module';
-
+import { SizeModule } from './sizes/size.module'
+import { EmailModule } from './email/email.module'
 @Module({
 	imports: [
 		ConfigModule.forRoot(),
@@ -24,7 +25,9 @@ import { ReviewModule } from './review/review.module';
 		OrderModule,
 		StatisticsModule,
 		ProductModule,
-		ReviewModule
+		ReviewModule,
+		SizeModule,
+		EmailModule,
 	]
 })
 export class AppModule {}

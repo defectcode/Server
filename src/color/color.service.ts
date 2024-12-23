@@ -27,14 +27,28 @@ export class ColorService {
 	}
 
 	async create(storeId: string, dto: ColorDto) {
-		return this.prisma.color.create({
+		const { productIds, ...colorData } = dto;
+	  
+		const color = await this.prisma.color.create({
+		  data: {
+			...colorData,
+			storeId
+		  }
+		});
+	  
+		if (productIds?.length) {
+		  await this.prisma.color.update({
+			where: { id: color.id },
 			data: {
-				name: dto.name,
-				value: dto.value,
-				storeId
+			  products: {
+				connect: productIds.map((id) => ({ id }))
+			  }
 			}
-		})
-	}
+		  });
+		}
+	  
+		return color;
+	}	  
 
 	async update(id: string, dto: ColorDto) {
 		await this.getById(id)
