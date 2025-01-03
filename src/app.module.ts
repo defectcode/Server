@@ -11,7 +11,7 @@ import { StoreModule } from './store/store.module'
 import { UserModule } from './user/user.module'
 import { ProductModule } from './product/product.module';
 import { ReviewModule } from './review/review.module';
-import { SizeModule } from './sizes/size.module'
+// import { SizeModule } from './sizes/size.module'
 import { EmailModule } from './email/email.module'
 @Module({
 	imports: [
@@ -26,7 +26,6 @@ import { EmailModule } from './email/email.module'
 		StatisticsModule,
 		ProductModule,
 		ReviewModule,
-		SizeModule,
 		EmailModule,
 	]
 })
